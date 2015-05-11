@@ -1,11 +1,11 @@
 #include <iostream>
 #include <cstring>
 #include "msg_fetch.h"
-#include "poker.h" 
+#include "poker.h"
 using namespace std;
 Play_Info *my_play_info;
 
-const char *split = "\n"; 
+const char *split = "\n";
 
 void tiger_receive	(char *message)
 {
