@@ -35,6 +35,8 @@ void tiger_receive	(char *message)
 			pot_win_msg(msg_ptr);
 	}
 }
+
+#if 0
 int main()
 {
 	my_play_info = new Play_Info;
@@ -52,3 +54,4 @@ int main()
 	tiger_receive(pot_win);
 	return 0;
 }
+#endif

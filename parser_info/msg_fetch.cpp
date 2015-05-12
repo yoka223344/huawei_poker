@@ -1,6 +1,8 @@
 #include "msg_fetch.h"
 #include <cstring>
 
+extern void deinit_socket();//hly
+
 extern Play_Info *my_play_info;
 
 int parser_card(Poker *poker, char *card_msg)
@@ -26,7 +28,7 @@ int parser_card(Poker *poker, char *card_msg)
 	 else if (*p == 'A')
 		 poker -> point = 14;
 	 else if (*p <= '9' && *p >= '2')
-		 poker -> point = (int)(*p - '1');
+		 poker -> point = (int)(*p - '1');//为什么不是(int)(*p - '0');？point :=[2-10]|J|Q|K|A
 	 return 0;
 }
 
@@ -35,14 +37,14 @@ int seat_info_msg(char *msg_ptr)
 	string msg = string(msg_ptr);
 	int count = 0;
 	msg_ptr = strtok(NULL, "\n");
-	char p_tmp[10][30];
+	char p_tmp[10][30];// length of players not more than 20 bytes.[21]
 	while(strcmp(msg_ptr, "/seat "))
 	{
 		strcpy(p_tmp[count], msg_ptr);
 		count++;
 		msg_ptr = strtok(NULL, "\n");
 	}
-	for (int i =0; i < count; i++)
+	for (int i = 0; i < count; i++)
 	{
 		Player *new_player = new Player;
 		char *p = NULL;
@@ -70,6 +72,7 @@ int seat_info_msg(char *msg_ptr)
 int game_over()
 {
 	cout << __FUNCTION__ <<endl;
+	deinit_socket();//player收到此消息后应当先关闭与server的socket连接，再退出程序。
 	return 0;
 }
 

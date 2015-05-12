@@ -15,7 +15,7 @@
 #endif // WIN32
 #include <stdio.h>
 #include <stdlib.h>
-#include <pthread.h>
+#include <pthread.h>//在windows下没有。。
 
 #include <time.h>
 #include <stdarg.h>
@@ -154,7 +154,7 @@ static void *recv_thread(void *arg)
 		log(LOG_GENERIC, "disconnect");
 
 		// we should gently close socket, and try to connect again
-		close(sck_fd);
+		closesocket(sck_fd);//是否是closesocket？close（原）。
 	}
 
 	log(LOG_GENERIC, "recv thread exit");
