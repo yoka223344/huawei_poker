@@ -3,12 +3,30 @@
 #include <iostream>
 #include <map>
 using namespace std;
-enum Colors {SPADES, HEARTS, CLUBS, DIAMONDS};
-enum Player_Choice {start, blind, check, call, raise, all_in, fold};
+
+typedef enum _Card_Color
+{
+	SPADES	,	// hei tao
+	HEARTS	,	// hong xin
+	CLUBS	,	// mei hua
+	DIAMONDS,	// fang pian
+} Card_Color;
+
+enum Player_Choice
+{
+	start	,
+	blind	,
+	check	,
+	call	,
+	raise	,
+	all_in	,
+	fold	,
+};
+
 class Poker
 {
 public:
-	Colors mycolor;
+	Card_Color color;
 	int point;
 };
 
@@ -39,4 +57,4 @@ public:
 	int total_sum;
 
 };
-#endif
+#endif // POKER_H

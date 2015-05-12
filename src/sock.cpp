@@ -1,5 +1,4 @@
-//#define WIN32_LEAN_AND_MEAN
-#include "tiger.h"
+#include "hunter.h"
 
 #ifdef WIN32
 #include <winsock2.h>
@@ -15,7 +14,7 @@
 #endif // WIN32
 #include <stdio.h>
 #include <stdlib.h>
-#include <pthread.h>//在windows下没有。。
+#include <pthread.h>
 
 #include <time.h>
 #include <stdarg.h>
@@ -31,12 +30,15 @@ struct sockaddr_in local_sck_addr	= { 0 };
 
 pthread_t recv_thread_id;
 
-char tiger_buffer[MAX_TIGER_BUFFER];
+char sock_buffer[MAX_SOCK_BUFFER];
 
 void log(LOG_TYPE log_type, const char *format, ...)
 {
-	struct timeval raw_time;
+	time_t raw_time;	// should use this to compatitible with 64bit
+	struct timeval time_value;
 	struct tm *time_info;
+
+	unsigned short time_ms;
 
 	FILE *target;
 
@@ -54,16 +56,21 @@ void log(LOG_TYPE log_type, const char *format, ...)
 	}
 
 #ifdef WIN32
-	//GetLocalTime()
-	time(&raw_time.tv_sec);
+	SYSTEMTIME system_time;
+	GetLocalTime(&system_time);
+	time_ms = system_time.wMilliseconds;
+
+	// however, int64 could get corrupted here?
 #else // WIN32
-	gettimeofday(&raw_time, NULL);
+	gettimeofday(&time_value, NULL);
+	time_ms = time_value.tv_usec/1000;
 #endif // WIN32
 
-	time_info = localtime(&raw_time.tv_sec);
+	time(&raw_time);
+	time_info = localtime(&raw_time);
 
 	fprintf(target, "[%02d:%02d:%02d %03d] ",
-		time_info->tm_hour, time_info->tm_min, time_info->tm_sec, raw_time.tv_usec/1000);
+		time_info->tm_hour, time_info->tm_min, time_info->tm_sec, time_ms);
 
 	va_start (va_args, format);
 	vfprintf (target, format, va_args);
@@ -81,7 +88,7 @@ static void *recv_thread(void *arg)
 
 	int addr_len = sizeof(struct sockaddr_in);
 
-	message = tiger_buffer;
+	message = sock_buffer;
 
 	log(LOG_GENERIC, "recv thread created");
 
@@ -124,7 +131,7 @@ static void *recv_thread(void *arg)
 		while (1)
 		{
 			// blocking socket:
-			ret = recv(sck_fd, tiger_buffer, MAX_TIGER_BUFFER, 0);
+			ret = recv(sck_fd, sock_buffer, MAX_SOCK_BUFFER, 0);
 			if (ret > 0)
 			{
 				length = ret;
@@ -141,12 +148,12 @@ static void *recv_thread(void *arg)
 				log(LOG_ERROR, "recv error %d", ret);
 			}
 
-	#ifdef TIGER_DEBUG
+#ifdef sock_DEBUG
 			log(LOG_GENERIC, "Receive %d:%s", length, message);
-	#endif // TIGER_DEBUG
+#endif // sock_DEBUG
 
 			// once received, we call handler:
-			tiger_receive(message, length);
+			sock_receive(message, length);
 
 			// check how much time is wasted on receive module
 		}
@@ -154,13 +161,13 @@ static void *recv_thread(void *arg)
 		log(LOG_GENERIC, "disconnect");
 
 		// we should gently close socket, and try to connect again
-		closesocket(sck_fd);//是否是closesocket？close（原）。
+		closesocket(sck_fd);
 	}
 
 	log(LOG_GENERIC, "recv thread exit");
 }
 
-void tiger_send(char *message, int length)
+void sock_send(char *message, int length)
 {
 	int ret = EXIT_SUCCESS;
 
@@ -254,22 +261,3 @@ int deinit_socket()
 
 	return ret;
 }
-
-#if 1
-int main(int argc, char *argv[])
-{
-#ifdef WIN32
-	init_socket("192.168.225.128", 6000,
-				"192.168.225.1", 6001);
-#else // WIN32
-	init_socket("127.0.0.1", 6000,
-				"127.0.0.1", 6001);
-#endif // WIN32
-
-	while (1)
-	{
-	}
-
-	return 0;
-}
-#endif

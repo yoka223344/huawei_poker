@@ -1,7 +1,6 @@
-#include "msg_fetch.h"
 #include <cstring>
-
-extern void deinit_socket();//hly
+#include "hunter.h"
+#include "poker.h"
 
 extern Play_Info *my_play_info;
 
@@ -9,13 +8,13 @@ int parser_card(Poker *poker, char *card_msg)
 {
 	 char *p = strtok(card_msg, " ");
 	 if (!strcmp(p, "SPADES"))
-		 poker -> mycolor = SPADES;
+		 poker -> color = SPADES;
 	 else if (!strcmp(p, "HEARTS"))
-		 poker -> mycolor = HEARTS;
+		 poker -> color = HEARTS;
 	 else if (!strcmp(p, "CLUBS"))
-		 poker -> mycolor = CLUBS;
+		 poker -> color = CLUBS;
 	 else if (!strcmp(p, "DIAMONDS"))
-		 poker -> mycolor = DIAMONDS;
+		 poker -> color = DIAMONDS;
 	 p = strtok(NULL, " ");
 	 if (!strcmp(p, "10"))
 		 poker -> point = 10;
@@ -32,7 +31,7 @@ int parser_card(Poker *poker, char *card_msg)
 	 return 0;
 }
 
-int seat_info_msg(char *msg_ptr)
+static int msg_seat_info(char *msg_ptr)
 {
 	string msg = string(msg_ptr);
 	int count = 0;
@@ -76,7 +75,7 @@ int game_over()
 	return 0;
 }
 
-int blind_msg(char *msg_ptr)
+static int msg_blind(char *msg_ptr)
 {
 	cout << __FUNCTION__<<endl;
 	int count = 0;
@@ -100,7 +99,7 @@ int blind_msg(char *msg_ptr)
 	return 0;
 }
 
-int hold_cards_msg(char *msg_ptr, int my_pid)
+static int msg_cards(char *msg_ptr, int my_pid)
 {
 	cout << __FUNCTION__<<endl;
 	int count = 0;
@@ -118,7 +117,7 @@ int hold_cards_msg(char *msg_ptr, int my_pid)
 	return 0;
 }
 
-int inquire_msg(char *msg_ptr)
+static int msg_inquire(char *msg_ptr)
 {
 	cout << __FUNCTION__<<endl;
 	int count = 0;
@@ -159,7 +158,7 @@ int inquire_msg(char *msg_ptr)
 	return 0;
 }
 
-int flop_msg(char *msg_ptr)
+static int msg_flop(char *msg_ptr)
 {
 	char p_tmp[3][30]; 
 	for (int i = 0; i < 3; i++)
@@ -174,27 +173,27 @@ int flop_msg(char *msg_ptr)
 	return 0;
 }
 
-int turn_msg(char *msg_ptr)
+static int msg_turn(char *msg_ptr)
 {
 	msg_ptr = strtok(NULL, "\n");
 	parser_card(&(my_play_info -> public_cards.cards[4]), msg_ptr);
 	return 0;
 }
 
-int river_msg(char *msg_ptr)
+static int msg_river(char *msg_ptr)
 {
 	msg_ptr = strtok(NULL, "\n");
 	parser_card(&(my_play_info -> public_cards.cards[5]), msg_ptr);
 	return 0;
 }
 
-int showdown_msg(char *msg_ptr)
+static int msg_showdown(char *msg_ptr)
 {
 	cout << __FUNCTION__ << endl;
 	return 0;
 }
 
-int pot_win_msg(char *msg_ptr)
+static int msg_pot_win(char *msg_ptr)
 {
 	cout << __FUNCTION__<<endl;
 	int count = 0;
@@ -217,7 +216,7 @@ int pot_win_msg(char *msg_ptr)
 	return 0;
 }
 
+void tiger_receive(char *message, int length)
+{
 
-
-
-
+}
